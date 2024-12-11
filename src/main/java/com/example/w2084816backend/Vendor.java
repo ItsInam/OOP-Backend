@@ -1,10 +1,15 @@
 package com.example.w2084816backend;
-
-
 import java.sql.*;
 import java.time.LocalDateTime;
 
+/**
+ * Vendor class represents a vendor who generates tickets.
+ * Implements the Runnable interface to allow for multi-threaded execution.
+ * Each vendor creates a specific number of tickets and adds them to the ticket pool.
+ */
+
 public class Vendor implements Runnable {
+    // Initialize vendor attributes
     private final TicketPool ticketPool;
     private final int releaseRate;
     private final int vendorID;
@@ -12,9 +17,9 @@ public class Vendor implements Runnable {
     private final Configuration configuration;
     private final TicketRepository ticketRepository;
     private int ticketsProduced=0;
-
     static int ticketNumber = 0;
 
+    // Constructor to initialize Vendor object
     public Vendor(TicketPool ticketPool, int releaseRate, int vendorID, String name, Configuration configuration, TicketRepository ticketRepository) {
         this.ticketPool = ticketPool;
         this.releaseRate = releaseRate;
@@ -34,7 +39,8 @@ public class Vendor implements Runnable {
                 if (!success) {
                     break; // Stop if global ticket limit is reached
                 }
-                ticketsProduced++;
+                ticketsProduced++;// Increment the ticket counter for the vendor
+                // Updates the number of tickets produced by vendor in the database
                 try (Connection connection = Configuration.getConnection();
                      PreparedStatement preparedStatement = connection.prepareStatement("UPDATE vendor_entity SET tickets_produced = ? WHERE id = ?")) {
                     preparedStatement.setInt(1, ticketsProduced);
@@ -49,6 +55,7 @@ public class Vendor implements Runnable {
         }
     }
 
+    // Methods to add new vendor to the database
     public static void addVendor(int id, LocalDateTime time, String name) throws SQLException {
         try (Connection connection = Configuration.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
@@ -64,7 +71,7 @@ public class Vendor implements Runnable {
             }
         }
     }
-
+    // Getters
     public String getName() {
         return name;
     }
